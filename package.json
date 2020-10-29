@@ -1,0 +1,15 @@
+{
+  "name": "open-api-plugin",
+  "version": "0.1.0",
+  "description": "Plugin to convert OpenAPI specifications to Typescript stubs at compile-time",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "openapi-typescript-codegen": "github:thetrime/openapi-typescript-codegen"
+  },
+  "dependencies": {}
+}
