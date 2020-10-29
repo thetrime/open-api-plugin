@@ -8,8 +8,8 @@
   },
   "author": "",
   "license": "MIT",
-  "devDependencies": {
+  "dependencies": {
     "openapi-typescript-codegen": "github:thetrime/openapi-typescript-codegen"
   },
-  "dependencies": {}
+  "devDependencies": {}
 }
