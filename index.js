@@ -16,7 +16,7 @@ const compilePair = (pair) => {
     //console.log("Compiling with " + args.join(' '))
     const child = spawn("java", args)
     child.stdout.on("data", data => {
-        if (!/INFO/.exec(data))
+        if (!/INFO/.exec(data) && !/Output directory does not exist, or is inaccessible/.exec(data))
             console.log(`${data}`);
     });
 
@@ -30,7 +30,6 @@ const compilePair = (pair) => {
 
     return new Promise((resolution, rejection) => {
         child.on("close", code => {
-            console.log("child process exited with code " + code);
             if (code == 0) {
                 // Touch the output dir. If nothing has changed, openapi-generator-cli will not output anything, which means
                 // the timestamp stays the same.
@@ -39,8 +38,10 @@ const compilePair = (pair) => {
                 fs.utimesSync(pair.to, time, time);
                 resolution(code);
             }
-            else
+            else {
+                console.log("Compilation exited with code " + code);
                 rejection(code);
+            }
         })
     })
 }
@@ -67,10 +68,10 @@ module.exports = class BuildApiPlugin {
         Promise.all(files.map((pair) => {
             console.log("Considering " + pair.from + " -> " + pair.to);
             if (!fs.existsSync(pair.to) || fs.statSync(pair.from).mtime.valueOf() > fs.statSync(pair.to).mtime.valueOf()) {
-                console.log("Will recompile: ");
+                console.log("   *** will recompile " + pair.from);
                 return compilePair(pair);
             } else {
-                console.log("Not required - not modified");
+                console.log("   *** not required - " + pair.from + " not modified");
                 return Promise.resolve("not-modified");
             }
         })).then(() => {console.log("API is compiled"); callback()});
