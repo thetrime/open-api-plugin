@@ -1,0 +1,4 @@
+templateDir: node_modules/open-api-plugin/custom_templates
+files:
+  models.index.mustache:
+    templateType: API

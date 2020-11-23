@@ -9,8 +9,9 @@ const compilePair = (pair) => {
     const args = ["-jar", __dirname + "/openapi-generator-cli-" + OPENAPI_GENERATOR_VERSION + ".jar",
                   "generate",
                   "-g", "typescript-fetch",
-                  "--type-mappings=date=Date,DateTime=Date",
+                  "--type-mappings=date=Date,DateTime=Date,decimal=BigDecimal",
                   "--additional-properties=useSingleRequestParameter=true,typescriptThreePlus=true,modelPropertyNaming=original",
+                  "-c",  __dirname + "/config.yaml",
                   "-i", pair.from,
                   "-o", pair.to]
     //console.log("Compiling with " + args.join(' '))
