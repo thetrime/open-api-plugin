@@ -1,8 +1,40 @@
 const { spawn } = require("child_process");
-const fs = require('fs')
+const fs = require('fs');
+const got = require('got');
+const {promisify} = require('util');
+const stream = require('stream');
+const { createWriteStream } = require("fs");
 
-const OPENAPI_GENERATOR_VERSION="5.0.0-beta2"
+const OPENAPI_GENERATOR_VERSION="5.0.0-beta3"
 // TBD: Download the jar on demand, or just include it in the package?
+
+const ensureJar = async () => {
+    const url = `https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar`;
+    const fileName =  __dirname + "/openapi-generator-cli-" + OPENAPI_GENERATOR_VERSION + ".jar";
+    console.error(`Checking for ${fileName}`);
+    if (fs.existsSync(fileName)) {
+        console.error(`... found!`);
+    } else {
+        const downloadStream = got.stream(url);
+        const fileWriterStream = createWriteStream(fileName);
+        let progressPercentage = 0;
+        downloadStream.on("downloadProgress", ({ transferred, total, percent }) => {
+            const newPercentage = Math.round(percent * 100);
+            if (newPercentage >= progressPercentage + 5) {
+                progressPercentage = newPercentage;
+                console.error(`progress: ${transferred}/${total} (${newPercentage}%)`);
+            }
+        });
+        downloadStream.on("error", (error) => {
+            console.error(`Download failed: ${error.message}`);
+            // FIXME: Delete the file and abort
+        });
+
+        const pipeline = promisify(stream.pipeline);
+        await pipeline(downloadStream, fs.createWriteStream(fileName));
+        console.error(`Download complete!`);
+    }
+}
 
 
 const compilePair = (pair) => {
@@ -59,8 +91,9 @@ module.exports = class BuildApiPlugin {
         compiler.hooks.watchRun.tapAsync(pluginName, this.compile);
     }
 
-    compile(compiler, callback) {
+    async compile(compiler, callback) {
         console.log("BuildAPI invoked");
+        await ensureJar();
         const files = fs.readdirSync('../api').filter(fn => fn.endsWith('.json')).map(file => ({from: '../api/' + file,
                                                                                                 to: 'src/api/' + file.slice(0, -5)}))
         console.log("Building the following APIs:");
