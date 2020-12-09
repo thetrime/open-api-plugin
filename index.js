@@ -87,8 +87,8 @@ module.exports = class BuildApiPlugin {
     apply(compiler) {
         const pluginName = this.constructor.name
         console.log("OpenAPI Generator BuildAPI preparing " + this.source)
-        compiler.hooks.beforeRun.tapAsync(pluginName, this.compile);
-        compiler.hooks.watchRun.tapAsync(pluginName, this.compile);
+        compiler.hooks.beforeRun.tapAsync(pluginName, this.compile.bind(this));
+        compiler.hooks.watchRun.tapAsync(pluginName, this.compile.bind(this));
     }
 
     async compile(compiler, callback) {
