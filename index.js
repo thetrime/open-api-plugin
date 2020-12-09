@@ -94,9 +94,9 @@ module.exports = class BuildApiPlugin {
     async compile(compiler, callback) {
         console.log("BuildAPI invoked");
         await ensureJar();
-        const files = fs.readdirSync('../api').filter(fn => fn.endsWith('.json')).map(file => ({from: '../api/' + file,
-                                                                                                to: 'src/api/' + file.slice(0, -5)}))
-        console.log("Building the following APIs:");
+        const files = fs.readdirSync(this.source).filter(fn => fn.endsWith('.json')).map(file => ({from: `${this.source}/${file}`,
+                                                                                                   to: 'src/api/' + file.slice(0, -5)}))
+            console.log("Building the following APIs:");
         console.log(files);
 
         Promise.all(files.map((pair) => {
