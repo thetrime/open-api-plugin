@@ -111,3 +111,7 @@ module.exports = class BuildApiPlugin {
         })).then(() => {console.log("API is compiled"); callback()});
     }
 }
+
+if (require.main === module) {
+    ensureJar();
+}
