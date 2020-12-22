@@ -5,8 +5,7 @@ const {promisify} = require('util');
 const stream = require('stream');
 const { createWriteStream } = require("fs");
 
-const OPENAPI_GENERATOR_VERSION="5.0.0-beta3"
-// TBD: Download the jar on demand, or just include it in the package?
+const OPENAPI_GENERATOR_VERSION="5.0.0"
 
 const ensureJar = async () => {
     const url = `https://repo1.maven.org/maven2/org/openapitools/openapi-generator-cli/${OPENAPI_GENERATOR_VERSION}/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar`;
