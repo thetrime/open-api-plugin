@@ -320,10 +320,28 @@ export class {{classname}} extends runtime.BaseAPI {
      */
     {{^useSingleRequestParameter}}
     async {{nickname}}({{#allParams}}{{paramName}}{{^required}}?{{/required}}: {{#isEnum}}{{{datatypeWithEnum}}}{{/isEnum}}{{^isEnum}}{{{dataType}}}{{#isNullable}} | null{{/isNullable}}{{/isEnum}}{{^-last}}, {{/-last}}{{/allParams}}): Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
-        {{#returnType}}
-        const response = await this.{{nickname}}Raw({{#allParams.0}}{ {{#allParams}}{{paramName}}: {{paramName}}{{^-last}}, {{/-last}}{{/allParams}} }{{/allParams.0}});
-        return await response.value();
-        {{/returnType}}
+        try {
+            const response = await this.{{nickname}}Raw({{#allParams.0}}{ {{#allParams}}{{paramName}}: {{paramName}}{{^-last}}, {{/-last}}{{/allParams}} }{{/allParams.0}});
+            return await response.value();
+        } catch (errorResponse) {
+            switch(errorResponse.status) {
+            {{#responses}}
+            {{^is2xx}}
+                case {{code}}:
+                throw {status: {{code}},
+                       {{#primitiveType}}
+                       response: await new runtime.TextApiResponse(errorResponse)};
+                       {{/primitiveType}}
+                       {{^primitiveType}}
+                       response: await new runtime.JSONApiResponse(errorResponse, (jsonValue) => {{dataType}}FromJSON(jsonValue)).value()};
+                       {{/primitiveType}}
+            {{/is2xx}}
+            {{/responses}}
+                default:
+                throw {status: errorResponse.status,
+                       response: await new runtime.JSONApiResponse(errorResponse)};
+            }
+        }
         {{^returnType}}
         await this.{{nickname}}Raw({{#allParams.0}}{ {{#allParams}}{{paramName}}: {{paramName}}{{^-last}}, {{/-last}}{{/allParams}} }{{/allParams.0}});
         {{/returnType}}
@@ -332,8 +350,28 @@ export class {{classname}} extends runtime.BaseAPI {
     {{#useSingleRequestParameter}}
     async {{nickname}}({{#allParams.0}}requestParameters: {{#prefixParameterInterfaces}}{{classname}}{{/prefixParameterInterfaces}}{{operationIdCamelCase}}Request{{/allParams.0}}): Promise<{{#returnType}}{{{returnType}}}{{/returnType}}{{^returnType}}void{{/returnType}}> {
         {{#returnType}}
-        const response = await this.{{nickname}}Raw({{#allParams.0}}requestParameters{{/allParams.0}});
-        return await response.value();
+        try {
+          const response = await this.{{nickname}}Raw({{#allParams.0}}requestParameters{{/allParams.0}});
+          return await response.value();
+        } catch (errorResponse) {
+            switch(errorResponse.status) {
+            {{#responses}}
+            {{^is2xx}}
+                case {{code}}:
+                throw {status: {{code}},
+                       {{#primitiveType}}
+                       response: await new runtime.TextApiResponse(errorResponse)};
+                       {{/primitiveType}}
+                       {{^primitiveType}}
+                       response: await new runtime.JSONApiResponse(errorResponse, (jsonValue) => {{dataType}}FromJSON(jsonValue)).value()};
+                       {{/primitiveType}}
+            {{/is2xx}}
+            {{/responses}}
+                default:
+                throw {status: errorResponse.status,
+                       response: await new runtime.JSONApiResponse(errorResponse)};
+            }
+        }
         {{/returnType}}
         {{^returnType}}
         await this.{{nickname}}Raw({{#allParams.0}}requestParameters{{/allParams.0}});
