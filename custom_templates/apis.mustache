@@ -339,7 +339,7 @@ export class {{classname}} extends runtime.BaseAPI {
             {{/responses}}
                 default:
                 throw {status: errorResponse.status,
-                       response: await new runtime.JSONApiResponse(errorResponse)};
+                       response: await new runtime.JSONApiResponse(errorResponse).value()};
             }
         }
         {{^returnType}}
@@ -369,7 +369,7 @@ export class {{classname}} extends runtime.BaseAPI {
             {{/responses}}
                 default:
                 throw {status: errorResponse.status,
-                       response: await new runtime.JSONApiResponse(errorResponse)};
+                       response: await new runtime.JSONApiResponse(errorResponse).value()};
             }
         }
         {{/returnType}}
